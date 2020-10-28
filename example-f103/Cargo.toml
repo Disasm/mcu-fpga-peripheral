@@ -1,0 +1,13 @@
+[package]
+name = "test-stm32f103c8"
+version = "0.1.0"
+authors = ["Vadim Kaushan <admin@disasm.info>"]
+edition = "2018"
+
+[dependencies]
+cortex-m = "0.6.1"
+cortex-m-rt = "0.6.10"
+panic-semihosting = "0.5.3"
+stm32f1xx-hal = { version = "0.5.0", features = ["rt", "stm32f103"] }
+embedded-hal = "0.2.3"
+litex-pac = { path = "../litex-pac" }
