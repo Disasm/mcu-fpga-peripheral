@@ -1,0 +1,15 @@
+[package]
+name = "example-f411"
+version = "0.1.0"
+authors = ["disasm"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cortex-m-rt = "0.6.13"
+panic-semihosting = "0.5.4"
+stm32f4xx-hal = { version = "0.8.3", features = ["stm32f411"] }
+cortex-m = "0.6.4"
+embedded-hal = "0.2.4"
+litex-pac = { path = "../litex-pac" }
