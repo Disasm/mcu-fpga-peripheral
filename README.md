@@ -28,8 +28,3 @@ the `example-f411/src/main.rs` file.
 When you press the `KEY` button on MiniF4, the central LED on break-off should
 light up: it starts blinking at the maximum speed. When you release the button,
 the LED should stop blinking.
-
-## Errata
-
-Reading the peripheral registers doesn't work correctly at the moment,
-presumably due to bugs in the STM32F4 SPI driver or hardware.

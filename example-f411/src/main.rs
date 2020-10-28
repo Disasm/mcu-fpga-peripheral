@@ -20,6 +20,7 @@ use stm32f4xx_hal::delay::Delay;
 use litex_pac::register::MemoryInterface;
 use litex_pac::{ctrl, leds};
 use litex_pac::{read_reg, write_reg};
+use stm32f4xx_hal::gpio::Speed;
 
 struct SpiMemoryInterface<SPI, CS, DELAY> {
     spi: SPI,
@@ -82,9 +83,9 @@ fn main() -> ! {
 
     let mut cs = gpioa.pa4.into_push_pull_output();
     cs.set_high().ok();
-    let sck = gpioa.pa5.into_alternate_af5();
-    let miso = gpioa.pa6.into_alternate_af5();
-    let mosi = gpioa.pa7.into_alternate_af5();
+    let sck = gpioa.pa5.into_alternate_af5().set_speed(Speed::VeryHigh);
+    let miso = gpioa.pa6.into_alternate_af5().set_speed(Speed::VeryHigh);
+    let mosi = gpioa.pa7.into_alternate_af5().set_speed(Speed::VeryHigh);
     let spi = Spi::spi1(dp.SPI1, (sck, miso, mosi), MODE_0, 8_000_000.hz(), clocks);
 
     let delay = Delay::new(cp.SYST, clocks);
@@ -110,14 +111,20 @@ fn main() -> ! {
 
             write_reg!(leds, leds, OUT, hledr1: counter & 1);
 
-            /*let value = 0xff00ff01;
+            let b = [
+                0x11u8.wrapping_add(counter as u8),
+                0x22u8.wrapping_add(counter as u8),
+                0x33u8.wrapping_add(counter as u8),
+                0x44u8.wrapping_add(counter as u8),
+            ];
+            let value = u32::from_le_bytes(b);
 
             write_reg!(ctrl, ctrl, SCRATCH, value);
             let value2 = read_reg!(ctrl, ctrl, SCRATCH);
 
             if value != value2 {
                 panic!("Values mismatch: {:#x} => {:#x}", value, value2);
-            }*/
+            }
 
         } else {
             led.set_high().ok();
