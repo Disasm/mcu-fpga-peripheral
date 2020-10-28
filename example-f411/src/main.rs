@@ -1,6 +1,14 @@
 #![no_main]
 #![no_std]
 
+/*
+  Connections:
+    A4 - CS_N - PMOD1A.1
+    A5 - SCK  - PMOD1A.2
+    A6 - MISO - PMOD1A.3
+    A7 - MOSI - PMOD1A.4
+*/
+
 use panic_semihosting as _;
 
 use cortex_m_rt::entry;
