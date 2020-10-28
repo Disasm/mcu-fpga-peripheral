@@ -95,7 +95,7 @@ fn main() -> ! {
         (sck, miso, mosi),
         &mut afio.mapr,
         MODE_0,
-        8.mhz(),
+        4.mhz(),
         clocks,
         &mut rcc.apb2
     );
