@@ -1,0 +1,9 @@
+[submodule "icebreaker-soc/deps/migen"]
+	path = icebreaker-soc/deps/migen
+	url = https://github.com/m-labs/migen.git
+[submodule "icebreaker-soc/deps/litex"]
+	path = icebreaker-soc/deps/litex
+	url = https://github.com/enjoy-digital/litex.git
+[submodule "icebreaker-soc/deps/litex-boards"]
+	path = icebreaker-soc/deps/litex-boards
+	url = https://github.com/litex-hub/litex-boards.git
