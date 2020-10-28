@@ -26,7 +26,7 @@ Now connect two boards according to the connection table provided at the top of
 the `example-f411/src/main.rs` file.
  
 When you press the `KEY` button on MiniF4, the central LED on break-off should
-light up: it starts blinking on the maximum speed. When you release the button,
+light up: it starts blinking at the maximum speed. When you release the button,
 the LED should stop blinking.
 
 ## Errata
