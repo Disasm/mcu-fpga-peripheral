@@ -1,12 +1,12 @@
 # Copyright (c) 2019-2020 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2020 Vadim Kaushan <admin@disasm.info>
 # SPDX-License-Identifier: BSD-2-Clause
-
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.interconnect import wishbone
 from migen import *
 from migen.genlib.cdc import MultiReg
+from hard_spi import HardSPISlave
 
 
 # SPI Slave ----------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ class SPIBridge(Module, AutoCSR, AutoDoc):
         self.intro = ModuleDoc("SPI slave driver")
 
         self.wishbone = bus = wishbone.Interface()
-        self.submodules.spi = spi = SPISlave(spi_pads)
+        self.submodules.spi = spi = HardSPISlave(spi_pads)
 
         spi_counter = Signal(4)
         spi_dword_mosi = Signal(32)
