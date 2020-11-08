@@ -48,12 +48,13 @@ class _CRG(Module, AutoDoc):
         # # #
 
         # Clocks
-        clk12 = platform.request("clk12")
-        if sys_clk_freq == 12e6:
-            self.comb += self.cd_sys.clk.eq(clk12)
+        clk16 = platform.request("clk16")
+        platform.add_period_constraint(clk16, 1e9 / 16e6)
+        if sys_clk_freq == 16e6:
+            self.comb += self.cd_sys.clk.eq(clk16)
         else:
-            self.submodules.pll = pll = iCE40PLL(primitive="SB_PLL40_PAD")
-            pll.register_clkin(clk12, 12e6)
+            self.submodules.pll = pll = iCE40PLL()
+            pll.register_clkin(clk16, 16e6)
             pll.create_clkout(self.cd_sys, sys_clk_freq, with_reset=False)
         platform.add_period_constraint(self.cd_sys.clk, 1e9 / sys_clk_freq)
 
@@ -92,6 +93,11 @@ class BaseSoC(SoCCore):
         kwargs["integrated_rom_size"] = 0
 
         kwargs["csr_data_width"] = 32
+
+        clock_ext = [
+            ("clk16", 0, Pins("20"), IOStandard("LVCMOS33"))
+        ]
+        platform.add_extension(clock_ext)
 
         SoCCore.__init__(self, platform, sys_clk_freq, **kwargs)
 
