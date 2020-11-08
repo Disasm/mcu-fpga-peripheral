@@ -123,17 +123,6 @@ class BaseSoC(SoCCore):
         # self.submodules.spram = Up5kSPRAM(size=spram_size)
         # self.register_mem("sram", self.mem_map["sram"], self.spram.bus, spram_size)
 
-        #####################################################
-        # DEBUG
-        #####################################################
-
-        busy = self.bridge.wishbone.cyc
-        self.comb += led.eq(~busy)
-
-        busy_locked = Signal()
-        self.sync += If(busy, busy_locked.eq(1))
-        self.comb += led2.eq(~busy_locked)
-
         # The litex SPI module supports memory-mapped reads, as well as a bit-banged mode
         # for doing writes.
         # spiflash_size = 16 * 1024 * 1024
