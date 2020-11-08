@@ -105,10 +105,10 @@ class BaseSoC(SoCCore):
 
         spi_ext = [
             ("spi_slave", 0,
-                Subsignal("cs_n", Pins("PMOD1A:0"), IOStandard("LVCMOS33")),
-                Subsignal("clk", Pins("PMOD1A:1"), IOStandard("LVCMOS33")),
-                Subsignal("miso", Pins("PMOD1A:2"), IOStandard("LVCMOS33")),
-                Subsignal("mosi", Pins("PMOD1A:3"), IOStandard("LVCMOS33")),
+                Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
+                Subsignal("clk", Pins("15"), IOStandard("LVCMOS33")),
+                Subsignal("mosi", Pins("17"), IOStandard("LVCMOS33")),
+                Subsignal("miso", Pins("14"), IOStandard("LVCMOS33")),
             ),
         ]
         platform.add_extension(spi_ext)
