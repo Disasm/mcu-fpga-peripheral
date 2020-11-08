@@ -25,11 +25,40 @@ use litex_pac::{ctrl, leds};
 use litex_pac::{read_reg, write_reg};
 use stm32f4xx_hal::gpio::Speed;
 
+const BITSTREAM: &[u8] = include_bytes!("../../icebreaker-soc/build/icebreaker/gateware/icebreaker.bin");
+
 struct SpiMemoryInterface<SPI, CS, RESET, DELAY> {
     spi: SPI,
     cs: CS,
     creset: RESET,
     delay: DELAY,
+}
+
+impl<SPI, CS, RESET, DELAY> SpiMemoryInterface<SPI, CS, RESET, DELAY>
+where
+    SPI: stm32f4xx_hal::hal::blocking::spi::Write<u8>,
+    CS: stm32f4xx_hal::hal::digital::v2::OutputPin,
+    RESET: stm32f4xx_hal::hal::digital::v2::OutputPin,
+    DELAY: stm32f4xx_hal::hal::blocking::delay::DelayUs<u32>,
+    SPI::Error: core::fmt::Debug,
+{
+    pub fn upload_bitstream(&mut self, bitstream: &[u8]) {
+        self.creset.set_low().ok();
+        self.cs.set_low().ok();
+        self.delay.delay_us(10); // >=200ns
+        self.creset.set_high().ok();
+
+        self.delay.delay_us(1500); // >=1200us
+
+        self.cs.set_high().ok();
+        self.spi.write(&[0]).unwrap();
+        self.cs.set_low().ok();
+
+        self.spi.write(bitstream).unwrap();
+        self.spi.write(&[0; 6]).unwrap();
+
+        self.cs.set_high().ok();
+    }
 }
 
 impl<SPI, CS, RESET, DELAY> MemoryInterface for SpiMemoryInterface<SPI, CS, RESET, DELAY>
@@ -123,8 +152,14 @@ fn main() -> ! {
         litex_pac::register::set_memory_interface(&mut *ptr);
     }
 
+    mem_interface.upload_bitstream(BITSTREAM);
+
     let ctrl = ctrl::CTRL::take().unwrap();
     let leds = leds::LEDS::take().unwrap();
+
+    rprintln!("SCRATCH: {:08x}", read_reg!(ctrl, ctrl, SCRATCH));
+    write_reg!(ctrl, ctrl, SCRATCH, 0xdeadbeef);
+    rprintln!("SCRATCH2: {:08x}", read_reg!(ctrl, ctrl, SCRATCH));
 
     let mut counter = 0u32;
     loop {
