@@ -10,21 +10,18 @@ PoC uses a regular SPI bus for communication.
 ## Build and run
 
 The following procedure assumes you have WeAct STM32F4x1 MiniF4 v3.0 and
-iCEBreaker boards connected to PC. Additionally, a break-off PMOD should
-be connected to PMOD2 port of the board. 
+iCEBreaker boards connected to PC. iCEBreaker board should be modified before connecting.
+
+* CS pin (pin 1) of the flash chip should be disconnected from the board
+* J15 and J16 should be switched into FPGA mode
 
 ```console
 cd icebreaker-soc
 ./soc.py --flash
 
 cd ../example-f411
-openocd &
-cargo run --release
+cargo embed --release
 ```
 
 Now connect two boards according to the connection table provided at the top of
 the `example-f411/src/main.rs` file.
- 
-When you press the `KEY` button on MiniF4, the central LED on break-off should
-light up: it starts blinking at the maximum speed. When you release the button,
-the LED should stop blinking.
