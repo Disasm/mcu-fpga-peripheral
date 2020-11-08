@@ -3,10 +3,12 @@
 
 /*
   Connections:
-    A4 - CS_N - PMOD1A.1
-    A5 - SCK  - PMOD1A.2
-    A6 - MISO - PMOD1A.3
-    A7 - MOSI - PMOD1A.4
+    B12 - CS_N   - FLASH[nCS]
+    B13 - SCK    - FLASH[SCK]
+    B14 - MISO   - FLASH[IO1]
+    B15 - MOSI   - FLASH[IO0]
+    B2  - CRESET - CRESET - add 4.7k pull-down resistor
+    A8  - CLK16  - PMOD2[9]
 */
 
 use panic_rtt_target as _;
@@ -23,16 +25,18 @@ use litex_pac::{ctrl, leds};
 use litex_pac::{read_reg, write_reg};
 use stm32f4xx_hal::gpio::Speed;
 
-struct SpiMemoryInterface<SPI, CS, DELAY> {
+struct SpiMemoryInterface<SPI, CS, RESET, DELAY> {
     spi: SPI,
     cs: CS,
+    creset: RESET,
     delay: DELAY,
 }
 
-impl<SPI, CS, DELAY> MemoryInterface for SpiMemoryInterface<SPI, CS, DELAY>
+impl<SPI, CS, RESET, DELAY> MemoryInterface for SpiMemoryInterface<SPI, CS, RESET, DELAY>
 where
     SPI: stm32f4xx_hal::hal::blocking::spi::Transfer<u8>,
     CS: stm32f4xx_hal::hal::digital::v2::OutputPin,
+    RESET: stm32f4xx_hal::hal::digital::v2::OutputPin,
     DELAY: stm32f4xx_hal::hal::blocking::delay::DelayUs<u32>,
     SPI::Error: core::fmt::Debug,
 {
@@ -78,24 +82,40 @@ fn main() -> ! {
     let rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.use_hse(25.mhz()).sysclk(100.mhz()).freeze();
 
+    // Setup MCO
+    unsafe {
+        // 16MHz output
+        let rcc = &*stm32f4xx_hal::stm32::RCC::ptr();
+        rcc.cfgr.modify(|_, w| {
+            w.mco1().hsi();
+            w.mco1pre().div1()
+        });
+    }
+
     let gpioa = dp.GPIOA.split();
+    let gpiob = dp.GPIOB.split();
     let gpioc = dp.GPIOC.split();
 
     let button = gpioa.pa0.into_pull_up_input();
     let mut led = gpioc.pc13.into_open_drain_output();
 
-    let mut cs = gpioa.pa4.into_push_pull_output();
+    let _mco = gpioa.pa8.into_alternate_af0();
+
+    let mut cs = gpiob.pb12.into_push_pull_output();
     cs.set_high().ok();
-    let sck = gpioa.pa5.into_alternate_af5().set_speed(Speed::VeryHigh);
-    let miso = gpioa.pa6.into_alternate_af5().set_speed(Speed::VeryHigh);
-    let mosi = gpioa.pa7.into_alternate_af5().set_speed(Speed::VeryHigh);
-    let spi = Spi::spi1(dp.SPI1, (sck, miso, mosi), MODE_0, 8_000_000.hz(), clocks);
+    let mut creset = gpiob.pb2.into_push_pull_output();
+    creset.set_low().ok();
+    let sck = gpiob.pb13.into_alternate_af5().set_speed(Speed::VeryHigh);
+    let miso = gpiob.pb14.into_alternate_af5().set_speed(Speed::VeryHigh);
+    let mosi = gpiob.pb15.into_alternate_af5().set_speed(Speed::VeryHigh);
+    let spi = Spi::spi2(dp.SPI2, (sck, miso, mosi), MODE_0, 8_000_000.hz(), clocks);
 
     let delay = Delay::new(cp.SYST, clocks);
 
     let mut mem_interface = SpiMemoryInterface {
         spi,
         cs,
+        creset,
         delay,
     };
     unsafe {
