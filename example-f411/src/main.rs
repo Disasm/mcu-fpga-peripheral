@@ -9,7 +9,7 @@
     A7 - MOSI - PMOD1A.4
 */
 
-use panic_semihosting as _;
+use panic_rtt_target as _;
 
 use cortex_m_rt::entry;
 use stm32f4xx_hal::prelude::*;
@@ -17,6 +17,7 @@ use stm32f4xx_hal::stm32;
 use stm32f4xx_hal::spi::Spi;
 use stm32f4xx_hal::hal::spi::MODE_0;
 use stm32f4xx_hal::delay::Delay;
+use rtt_target::{rtt_init_print, rprintln};
 use litex_pac::register::MemoryInterface;
 use litex_pac::{ctrl, leds};
 use litex_pac::{read_reg, write_reg};
@@ -67,8 +68,10 @@ where
         self.delay.delay_us(1);
     }
 }
+
 #[entry]
 fn main() -> ! {
+    rtt_init_print!();
     let dp = stm32::Peripherals::take().unwrap();
     let cp = cortex_m::peripheral::Peripherals::take().unwrap();
 

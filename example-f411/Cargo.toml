@@ -8,8 +8,9 @@ edition = "2018"
 
 [dependencies]
 cortex-m-rt = "0.6.13"
-panic-semihosting = "0.5.4"
 stm32f4xx-hal = { version = "0.8.3", features = ["stm32f411"] }
 cortex-m = "0.6.4"
 embedded-hal = "0.2.4"
 litex-pac = { path = "../litex-pac" }
+rtt-target = { version = "0.2.2", features = ["cortex-m"] }
+panic-rtt-target = { version = "0.1.1", features = ["cortex-m"] }
